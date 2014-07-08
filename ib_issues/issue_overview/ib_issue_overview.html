@@ -1,0 +1,72 @@
+<!-- HEAD tag-->
+<imart type="head">
+	<title><imart type="message" id="ISSUES.ID" /></title>	
+	<style>
+	.splitcontentleft {
+		float: left;
+		width: 49%;
+	}
+	.splitcontentright {
+		float: right;
+		width: 49%;
+	}
+	.box {
+		background-color: #f6f6f6;
+		border: 1px solid #e4e4e4;
+		color: #505050;
+		line-height: 1.5em;
+		margin-bottom: 10px;
+		padding: 6px;
+	}
+	</style>
+</imart>
+
+<!-- title to be displayed on the screen -->
+<div class="imui-title">
+	<h1><imart type="message" id="ISSUES.ID" /></h1>
+</div>
+
+<!-- contents area (screen) -->
+<div class="imui-form-container">
+	<div class="imui-chapter-title">
+		<h2><imart type="string" value=$form.name /></h2>
+	</div>
+	
+	<div class="mt-20">
+		<div id="content">			
+			<h2><b><imart type="message" id="OVERVIEW.ID" /></b></h2>
+			<div class="splitcontentleft" style="float: left; width: 49%;">
+				<imart type="condition" validity=$descriptionSet>
+				<div class="wiki">
+					<imart type="string" value=$form.description />
+				</div>
+				</imart>
+				<imart type="condition" validity=$homepagenSet>
+				<ul>
+					<li><imart type="message" id="HOMEPAGE.ID" />: <a href="<imart type="string" value=$form.homepage />"><imart type="string" value=$form.homepage /></a></li>
+				</ul>
+				</imart>
+				<div class="issues box">
+					<h3><b><imart type="message" id="ISSUE.TRACKING.ID" /></b></h3>
+					<ul>
+						<imart type="string" value=$traclerList />
+					</ul>
+					<p>
+						<a href="ib_issues/issues"><imart type="message" id="VIEW.ALL.ISSUE.ID" /></a>
+					</p>
+				</div>			
+			</div>
+			
+			<div class="splitcontentright" style="float: right; width: 49%;">
+				<div class="members box">
+					<h3><b><imart type="message" id="MEMBERS.ID" /></b></h3>
+					<p>
+					<imart type="string" value=$userRoleList />
+					</p>
+				</div>
+			</div>
+			
+			<div style="clear:both;"></div>
+		</div>
+	</div>
+</div>

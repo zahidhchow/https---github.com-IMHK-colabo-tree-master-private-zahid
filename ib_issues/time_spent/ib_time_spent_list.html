@@ -1,0 +1,66 @@
+<!-- HEAD tag-->
+<imart type="head">
+	<title><imart type="message" id="ISSUES.ID" /></title>	
+	<imart type="imuiValidationRule" rule="ib_issues/time_spent/ib_time_spent_list#validateRule" rulesName="rules" messagesName="messages" />
+	<script src="ui/libs/jquery-validation-1.9.0/jquery.validate.js"></script>
+	<script type="text/javascript">
+	var backToList = '<imart type="string" value=$timeSearchCondition.backToList/>';
+	function onPageChange(obj, response) {
+		var url = 'ib_issues/timespent/list/<imart type="string" value=$issueID />';
+		$.ajax({
+			headers: { 'x-jp-co-intra-mart-ajax-request-from-imui-form-util': 'true' },
+			dataType:'json',
+			url : url,
+			data: obj,
+			cache: false,
+			error: imuiTransitionToErrorPage,
+			success:function(res) {
+				//バリデーションエラー時はエラーメッセージを出力
+				if (res.actionError === 'true') {
+					console.log("error");
+					imuiAlert(res.errorMessage,'エラーが発生しました');
+				}
+				else {
+					$('#total_spent_time_box').html(res.total_spent_time);
+					for (var i = 0; i < res.data.length; i++) {
+						res.data[i].edit = "";
+					}
+					response(res);
+				}
+			}
+		});
+	}
+	</script>	
+</imart>
+
+<!-- title to be displayed on the screen -->
+<div class="imui-title">
+  <h1><imart type="message" id="ISSUES.ID" /></h1>
+</div>
+
+<!-- contents area (screen) -->
+<div class="imui-form-container">
+	<div class="imui-chapter-title">
+		<h2><imart type="message" id="SPENT.TIME.ID" /></h2>
+	</div>
+	
+	<div class="mt-20">
+		<b><imart type="message" id="TOTAL.TIME.ID" />: <span class="total_spent" id="total_spent_time_box"></span> <imart type="message" id="HOURS.ID" /></b>
+		<span style="float:right;">
+		<a href="ib_issues/timespent/register/<imart type="string" value=$issueID />"><span class="im-ui-icon-common-16-update"></span>Log time</a>&nbsp;
+		</span>
+		<!-- Time spent will go here -->
+		<imart type="imuiListTable" id="listtable" onCellSelect="onCellSelect" autoWidth="true"  rowNumbers="true"  process="csjs" target="onPageChange" height="300" viewRecords="true" page=$page>
+			<pager rowNum="100" />
+			<cols>
+				<col name="project_id" caption="<imart type="message" id="PROJECT.ID"/>" index="project_id"/>
+				<col name="spent_on" caption="<imart type="message" id="DATE.ID"/>" index="spent_on"/>
+				<col name="user_cd" caption="<imart type="message" id="USER.ID"/>" index="user_cd"/>
+				<col name="activity_id" caption="<imart type="message" id="ACTIVITY.ID"/>" index="activity_id"/>
+				<col name="issue_id" caption="<imart type="message" id="ISSUE.ID"/>" index="issue_id"/>
+				<col name="comments" caption="<imart type="message" id="COMMENT.ID"/>" index="comments"/>
+				<col name="hours" caption="<imart type="message" id="HOURS.ID"/>" index="hours"/>	
+			</cols>
+		</imart>
+	</div>
+</div>

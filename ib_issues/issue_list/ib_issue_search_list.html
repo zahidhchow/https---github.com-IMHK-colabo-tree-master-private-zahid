@@ -1,0 +1,186 @@
+<!-- HEAD tag-->
+<imart type="head">
+	<title><imart type="message" id="ISSUES.ID" /></title>	
+	<imart type="imuiValidationRule" rule="ib_issues/issue_list/ib_issue_search_list#validateRule" rulesName="rules" messagesName="messages" />
+	<script src="ui/libs/jquery-validation-1.9.0/jquery.validate.js"></script>
+	<script type="text/javascript">
+	var backToList = '<imart type="string" value=$employeeSearchCondition.backToList/>';
+	function onPageChange(obj, response) {
+		if (imuiValidate('#doSearchForm', rules, messages)) {
+			var url = 'ib_issues/issues/list';
+			obj.status_id = $('select[name="status_id"]').val();
+			obj.tracker_id = $('select[name="tracker_id"]').val();
+			obj.priority_id = $('select[name="priority_id"]').val();
+			obj.assigned_to_id = $('select[name="assigned_to_id"]').val();
+			obj.progress = $('select[name="progress"]').val();
+			obj.author_id = $('select[name="author_id"]').val();
+			obj.start_updated_on = $('input[name="start_updated_on"]').val();
+			obj.end_updated_on = $('input[name="end_updated_on"]').val();
+			obj.start_created_on = $('input[name="start_created_on"]').val();
+			obj.end_created_on = $('input[name="end_created_on"]').val();
+			obj.subject = $('input[name="subject"]').val();
+			
+			console.log(obj);
+			$.ajax({
+				headers: { 'x-jp-co-intra-mart-ajax-request-from-imui-form-util': 'true' },
+				dataType:'json',
+				url : url,
+				data: obj,
+				cache: false,
+				error: imuiTransitionToErrorPage,
+				success:function(res) {
+					//バリデーションエラー時はエラーメッセージを出力
+					if (res.actionError === 'true') {
+						console.log("error");
+						imuiAlert(res.errorMessage,'エラーが発生しました');
+					}
+					else {
+						for (var i = 0; i < res.data.length; i++) {
+							res.data[i].edit = "";
+						}
+						response(res);
+					}
+				}
+			});			
+		}
+	}
+	
+	// 行選択時に実行される関数です。
+	function onCellSelect(rowid, iCol, cellcontent) {
+		if (iCol == 8) {
+			// 行の元データを取得
+			var grid = $('#listtable');
+			var rowData = grid.getRowData(rowid);
+			window.location.href = "ib_issues/details/"+rowData['id'];			
+			return;
+		}
+	}
+	(function($) {
+		$(document).ready(function() {
+			//formの２度押し登録防止
+			imuiDisableOnSubmit('form[name="doSearchForm"]', 100);
+			
+			//検索ボタン押下時、一覧の再表示イベントを実行し検索（onPageChange関数が実行されます）
+			$('#doSearch').click(function() {
+				$('#listtable').setGridParam({page:1}).trigger('reloadGrid');
+			});
+			
+			//クリアボタン押下時、フォーム要素内の入力値をすべてクリア
+			$('#clear').click(function() {
+				$('select[name="status_id"]').val('');
+				$('select[name="tracker_id"]').val('');
+				$('select[name="priority_id"]').val('');
+				$('select[name="assigned_to_id"]').val('');
+				$('select[name="progress"]').val('');
+				$('select[name="author_id"]').val('');
+				$('input[name="start_updated_on"]').val('');
+				$('input[name="end_updated_on"]').val('');
+				$('input[name="start_created_on"]').val('');
+				$('input[name="end_created_on"]').val('');
+				$('input[name="subject"]').val('');
+				//入力チェック結果をクリア
+				imuiResetForm('#doSearchForm');
+			});
+		});
+	})(jQuery);
+	</script>	
+</imart>
+
+<!-- title to be displayed on the screen -->
+<div class="imui-title">
+  <h1><imart type="message" id="ISSUES.ID" /></h1>
+</div>
+
+<!-- contents area (screen) -->
+<div class="imui-form-container">
+	<div class="imui-chapter-title">
+		<h2><imart type="message" id="ISSUES.ID" /></h2>
+	</div>
+	
+	<div class="mt-20">		
+		<form id="doSearchForm">
+			<imart type="imuiGadgetBar" id="gagget">
+				<imart type="imuiGadgetItem" title=$issueSearchTitle defaultOpen="false">
+					<table class="imui-form-search-condition">
+						<tr>
+							<th><label><imart type="message" id="STATUS.ID"/></label></th>
+							<td>
+								<imart type="string" value=$statusList />
+							</td>
+							<th><label><imart type="message" id="TRACKER.ID"/></label></th>
+							<td>
+								<imart type="string" value=$trackerList />
+							</td>
+						</tr>
+						<tr>
+							<th><label><imart type="message" id="PRIORITY.ID" /></label></th>
+							<td>
+								<imart type="string" value=$priorityList />
+							</td>
+							<th><label><imart type="message" id="ASSIGN.TO.ID" /></label></th>
+							<td>
+								<imart type="string" value=$assignToList />
+							</td>
+						</tr>
+						<tr>
+							<th><label><imart type="message" id="PROGRESS.ID" /></label></th>
+							<td>
+								<imart type="imuiSelect" list=progressList name="progress" id ="progress"></imart>
+							</td>
+							<th><label><imart type="message" id="AUTHOR.ID" /></label></th>
+							<td>
+								<imart type="string" value=$authorList />
+							</td>
+						</tr>
+						<tr>
+							<th><label><imart type="message" id="UPDATED.ON.ID" /></label></th>
+							<td>
+								<imart type="imuiTextbox" id="start_updated_on" name="start_updated_on" value="" style="width: 150px;" autocomplete="off"></imart>
+								<imart type="imuiCalendar" floatable="true" altField="#start_updated_on" />
+								<imart type="imuiTextbox" id="end_updated_on" name="end_updated_on" value="" style="width: 150px;" autocomplete="off"></imart>
+								<imart type="imuiCalendar" floatable="true" altField="#end_updated_on" />
+							</td>
+							<th><label><imart type="message" id="CREATED.ON.ID" /></label></th>
+							<td>
+								<imart type="imuiTextbox" id="start_created_on" name="start_created_on" value="" style="width: 150px;" autocomplete="off"></imart>
+								<imart type="imuiCalendar" floatable="true" altField="#start_created_on" />
+								<imart type="imuiTextbox" id="end_created_on" name="end_created_on" value="" style="width: 150px;" autocomplete="off"></imart>
+								<imart type="imuiCalendar" floatable="true" altField="#end_created_on" />
+							</td>
+						</tr>
+						<tr>
+							<th><label><imart type="message" id="SUBJECT.ID" /></label></th>
+							<td colspan="3">
+								<imart type="imuiTextbox" id="subject" name="subject" value="" style="width: 200px;" autocomplete="off"></imart>
+							</td>
+							
+						</tr>
+					</table>
+					<div class="align-R">
+						<input type="button" value="<imart type="message" id="BUTTON.SEARCH.ID"/>" id="doSearch" class="imui-small-button" />
+						<input type="button" value="<imart type="message" id="BUTTON.RESET.ID"/>" id="clear" class="imui-small-button" />
+					</div>
+				</imart>
+			</imart>
+		</form>
+		<br>
+		<!-- Issue list will go here -->
+		<imart type="imuiListTable" id="listtable" onCellSelect="onCellSelect" autoWidth="true"  rowNumbers="true"  process="csjs" target="onPageChange" height="300" viewRecords="true" page=$page>
+			<pager rowNum="10" />
+			<cols>
+				<col name="id" caption="<imart type="message" id="ID.ID"/>" index="id"/>
+				<col name="tracker" caption="<imart type="message" id="TRACKER.ID"/>" index="tracker"/>
+				<col name="status" caption="<imart type="message" id="STATUS.ID"/>" index="status"/>
+				<col name="priority" caption="<imart type="message" id="PRIORITY.ID"/>" index="priority"/>
+				<col name="subject" caption="<imart type="message" id="SUBJECT.ID"/>" index="subject"/>
+				<col name="assigned_to_id" caption="<imart type="message" id="ASSIGN.TO.ID"/>" index="assigned_to_id"/>
+				<col name="updated_on" caption="<imart type="message" id="UPDATED.ON.ID"/>" index="updated_on"/>				
+				<col name="edit" caption="<imart type="message" id="VIEW.ID"/>" sortable="false" align="center">
+					<showIcon iconClass="im-ui-icon-common-16-update" />
+				</col>
+			</cols>
+		</imart>
+		
+	</div>
+	
+</div>

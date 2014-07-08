@@ -1,0 +1,206 @@
+<!-- HEAD tag-->
+<imart type="head">
+	<title><imart type="message" id="ISSUES.ID" /></title>
+	<imart type="imuiValidationRule" rule="ib_projects/new_project/ib_new_project_register#validateRule" rulesName="rules" messagesName="messages" />
+	<script src="ui/libs/jquery-validation-1.9.0/jquery.validate.js"></script>
+	
+	<script type="text/javascript">
+	(function($) {
+		$(document).ready(function() {
+			$('#insert-button, #create-button').click(function() {
+				if($(this).attr('id')=='insert-button'){
+					$('#action_button').val('insert');
+				}
+				else{
+					$('#action_button').val('create');
+				}
+				if (imuiValidate('form[name="doInsertForm"]', rules, messages)) {
+					var err_flag = 0;
+					if($('#description').val().length > 2000){
+						err_flag = 1;
+						$('#show_description_err').show();
+						$('#show_description_err').html('<imart type="message" id="DESCRIPTION.ERR.ID" />');
+						$('#show_description_err').addClass("imui-validation-error");
+					}
+					if($("input[name='enabled_module_names[]']:checked").length==0) {
+						err_flag = 1;
+						$('#show_module_list_err').show();
+						$('#show_module_list_err').html('<imart type="message" id="MUST.SELECT.MODULE.ID" />');
+						$('#show_module_list_err').addClass("imui-validation-error");
+					}
+					if($("input[name='tracker_ids[]']:checked").length==0) {
+						err_flag = 1;
+						$('#show_tracker_list_err').show();
+						$('#show_tracker_list_err').html('<imart type="message" id="MUST.SELECT.TRACKER.ID" />');
+						$('#show_tracker_list_err').addClass("imui-validation-error");
+					}
+					var obj={};
+					obj.identifier = $('#identifier').val();
+					$.ajax({
+						headers: { 'x-jp-co-intra-mart-ajax-request-from-imui-form-util': 'true' },
+						dataType:'json',
+						url : 'ib_projects/register/identifiercheck',
+						data: obj,
+						cache: false,
+						error: imuiTransitionToErrorPage,
+						success:function(res) {
+							
+							if(res[0].code==1){
+								err_flag = 1;
+								$('#show_identifier_err').show();
+								$('#show_identifier_err').html('<imart type="message" id="IDENTIFIER.ERR.ID" />');
+								$('#show_identifier_err').addClass("imui-validation-error");
+							}
+							if(err_flag == 0){
+								$('#show_description_err').hide();
+								$('#show_module_list_err').hide();
+								$('#show_tracker_list_err').hide();
+								$('#show_identifier_err').hide();
+								$('form[name="doInsertForm"]').submit();
+							}
+						}
+					});
+				}
+			});
+			
+			if ($('input[name="isSuccess"]').val() === 'true') {
+				imuiShowSuccessMessage('<imart type="message" id="PROJECT.INSERT.SUCCESS.ID" />');
+				window.setTimeout(function(){
+					if($('input[name="action_type"]').val()=='insert'){
+						window.location.href = "ib_projects/projects";
+					}
+					else{
+						window.location.href = "ib_projects/edit/"+$('input[name="project_id"]').val();
+					}
+				}, 2000);
+			}			
+			else if ($('input[name="isError"]').val() === 'true') {
+				imuiShowErrorMessage('<imart type="message" id="PROJECT.INSERT.FAIL.ID" />', [$('input[name="message"]').val()]);
+				window.setTimeout(function(){
+					window.location.href = "ib_settings/emails";
+				}, 5000);
+			}
+		});				
+	})(jQuery);
+	
+	</script>
+	<style>
+		.box {
+			background-color: #f6f6f6;
+			border: 1px solid #e4e4e4;
+			color: #505050;
+			line-height: 1.5em;
+			margin-bottom: 10px;
+			padding: 6px;
+		}
+		.floatinglevel {
+			float: left;
+			font-weight: normal;
+			margin-left: 0;
+			text-align: left;
+			width: 240px;
+		}		
+		em.info {
+			color: #888;
+			display: block;
+			font-size: 90%;
+			font-style: normal;
+		}
+	</style>
+</imart>
+
+<!-- title to be displayed on the screen -->
+<div class="imui-title">
+  <h1><imart type="message" id="PROJECTS.ID" /></h1>
+</div>
+<imart type="hidden" isSuccess=$status.success />
+<imart type="hidden" isError=$status.error />
+<imart type="hidden" message=$status.message />
+<imart type="hidden" project_id=$status.project_id />
+<imart type="hidden" action_type=$status.action_type />
+<!-- contents area (screen) -->
+<div class="imui-form-container">
+	<div class="imui-chapter-title">
+		<h2><imart type="message" id="NEW.PROJECT.ID" /></h2>
+	</div>
+	
+	<!-- form area -->
+	<form name="doInsertForm" action="ib_projects/register/insert" method="POST">
+		<imart type="imuiTextbox" id="action_button" name="action_button" value="" style="width: 200px;display:none" autocomplete="off"></imart>
+		<table class="imui-form">
+			<tr>
+				<th width="20%"><label><imart type="message" id="NAME.ID" /></label></th>
+				<td>
+					<imart type="imuiTextbox" id="name" name="name" value="" style="width: 200px;" autocomplete="off"></imart>
+				</td>
+			</tr>
+			<tr>
+				<th><label><imart type="message" id="DESCRIPTION.ID" /></label></th>
+				<td>
+					<imart type="imuiRichtextbox" id="description" name="description" value="" style="width: 800px; height: 250px;" />
+					<div id="show_description_err"></div>
+				</td>
+			</tr>
+			<tr>
+				<th><label><imart type="message" id="IDENTIFIER.ID" /></label></th>
+				<td>
+					<imart type="imuiTextbox" id="identifier" name="identifier" value="" style="width: 200px;" autocomplete="off"></imart>
+					<div id="show_identifier_err"></div>
+					<em class="info"><imart type="message" id="IDENTIFIER.MESSAGE.ID" /></em>
+				</td>
+			</tr>
+			<tr>
+				<th><label><imart type="message" id="HOMEPAGE.ID" /></label></th>
+				<td>
+					<imart type="imuiTextbox" id="homepage" name="homepage" value="" style="width: 200px;" autocomplete="off"></imart>
+				</td>
+			</tr>
+			<tr>
+				<th><label><imart type="message" id="PUBLIC.ID" /></label></th>
+				<td>
+					<imart type="condition" validity=$isPublic negative>
+						<imart type="input" style="checkbox" name="is_public" id="is_public" value="1"></imart>
+					</imart>
+					<imart type="condition" validity=$isPublic>
+						<imart type="input" style="checkbox" name="is_public" id="is_public" value="1" checked></imart>
+					</imart>
+				</td>
+			</tr>
+			<tr>
+				<th><label><imart type="message" id="SUBPROJECT.OF.ID" /></label></th>
+				<td>
+					<imart type="string" value=$projectsList />
+				</td>
+			</tr>
+			<tr>
+				<th><label><imart type="message" id="INHERIT.MEMBERS.OF.ID" /></label></th>
+				<td>
+					<imart type="input" style="checkbox" name="is_inherit_members" id="is_inherit_members" value="1"></imart>
+				</td>
+			</tr>
+			<tr>
+				<td colspan="2">
+					<fieldset class="box tabular"><legend><imart type="message" id="MODULES.ID" /></legend>
+						<imart type="string" value=$moduleList />
+						<br><div id="show_module_list_err"></div>
+					</fieldset>
+				</td>
+			</tr>
+			<tr>
+				<td colspan="2">
+					<fieldset id="project_trackers" class="box tabular"><legend><imart type="message" id="TRACKERS.ID" /></legend>
+						<imart type="string" value=$trackerList />
+						<br><div id="show_tracker_list_err"></div>
+					</fieldset>
+				</td>
+			</tr>
+		</table>
+	</form>
+	<table>
+		<tr>
+			<td>
+				<input type="button" value='<imart type="message" id="CREATE.ID" />' id="create-button" class="imui-large-button" />&nbsp;<input type="button" value='<imart type="message" id="CREATE.CONTINUE.ID" />' id="insert-button" class="imui-large-button" />
+			</td>
+		</tr>
+	</table>
+</div>

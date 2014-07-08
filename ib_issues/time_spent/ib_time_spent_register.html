@@ -1,0 +1,209 @@
+<!-- HEAD tag-->
+<imart type="head">
+	<title><imart type="message" id="ISSUES.ID" /></title>
+	<imart type="imuiValidationRule" rule="ib_issues/time_spent/ib_time_spent_register#validateRule" rulesName="rules" messagesName="messages" />
+	<script src="ui/libs/jquery-validation-1.9.0/jquery.validate.js"></script>
+	
+	<script type="text/javascript">
+	(function($) {
+		$(document).ready(function() {
+			$('#insert-button, #create-button').click(function() {
+				if($(this).attr('id')=='insert-button'){
+					$('#action_button').val('insert');
+				}
+				else{
+					$('#action_button').val('create');
+				}
+				if (imuiValidate('form[name="doInsertForm"]', rules, messages)) {
+					var err_flag = 0;
+					if(!checkDate($('#spent_on').val())){
+						var err_flag = 1;
+						$('#show_date_err').show();
+						$('#show_date_err').html('<imart type="message" id="DATE.ERR.ID" />');
+						$('#show_date_err').addClass("imui-validation-error");
+					}
+					else{
+						$('#show_date_err').hide();						
+					}
+					if(!checkTime($('#hours').val())){
+						var err_flag = 1;
+						$('#show_hours_err').show();
+						$('#show_hours_err').html('<imart type="message" id="SPENT.ERR.ID" />');
+						$('#show_hours_err').addClass("imui-validation-error");
+					}
+					else{
+						$('#show_hours_err').hide();					
+					}
+					if(err_flag == 0){
+						$('form[name="doInsertForm"]').submit();
+					}
+				}
+				else{
+					$('#show_date_err').hide();	
+					$('#show_hours_err').hide();					
+				}
+			});
+			
+			if ($('input[name="isSuccess"]').val() === 'true') {
+				imuiShowSuccessMessage('<imart type="message" id="TIMELOG.INSERT.SUCCESS.ID" />');
+				window.setTimeout(function(){
+					if($('input[name="action_type"]').val()=='insert'){
+						window.location.href = "ib_issues/timespent/register/"+$('input[name="issueid"]').val();
+					}
+					else{
+						window.location.href = "ib_issues/details/"+$('input[name="issueid"]').val();
+					}
+				}, 2000);
+			}			
+			else if ($('input[name="isError"]').val() === 'true') {
+				imuiShowErrorMessage('<imart type="message" id="TIMELOG.INSERT.FAIL.ID" />', [$('input[name="message"]').val()]);
+				window.setTimeout(function(){
+					window.location.href = "ib_settings/emails";
+				}, 5000);
+			}
+		});
+		
+		$("#start_date").imuiCalendar("method_name");
+		$("#due_date").imuiCalendar("method_name");
+		
+	})(jQuery);
+	$(function() {
+		$("#issue_id").autocomplete({
+			source: "ib_issues/edit/autocom?pid="+<imart type="string" value=$form.project_id />+"&issue_id="+<imart type="string" value=$form.id />,
+			minLength: 1,
+			select: function(event, ui) {
+				//extra code will go here like (ui.item.value)
+			},
+			html: true,
+			// optional
+			open: function(event, ui) {
+				$(".ui-autocomplete").css("z-index", 1000);
+			}
+		});
+	});
+	function checkTime(time) {
+		var errorMsg = "";
+		// regular expression to match required time format
+		re = /^(\d{1,2}):(\d{2})?$/;
+		
+		if(time != '') {
+			if(regs = time.match(re)) {
+				if(regs[1] > 99) {
+					return false;
+				}
+				if(regs[2] > 59) {
+					return false;
+				}
+			}
+			else {
+				return false;
+			}
+		}
+		return true;
+	}
+	function checkDate(date) {
+		re = /^\d{2}\/\d{2}\/\d{4}$/;
+		// First check for the pattern
+		if(!date.match(re)) {
+			return false;
+		}
+		
+		// Parse the date parts to integers
+		var parts = date.split("/");
+		var day = parseInt(parts[1], 10);
+		var month = parseInt(parts[0], 10);
+		var year = parseInt(parts[2], 10);
+		// Check the ranges of month and year
+		if(year < 1 || year > 9999  || month<1 || month > 12){
+			return false;
+		}
+		
+		var monthLength = [ 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 ];
+		
+		// Adjust for leap years
+		if(year % 400 == 0 || (year % 100 != 0 && year % 4 == 0)){
+			monthLength[1] = 29;
+		}
+		if(day > 0 && day <= monthLength[month - 1]){
+			return true
+		}
+		else{
+			return false;
+		}
+	}
+	</script>
+</imart>
+
+<!-- title to be displayed on the screen -->
+<div class="imui-title">
+<h1><imart type="message" id="ISSUES.ID" /></h1>
+</div>
+
+<imart type="hidden" isSuccess=$status.success />
+<imart type="hidden" isError=$status.error />
+<imart type="hidden" message=$status.message />
+<imart type="hidden" issueid=$status.issue_id />
+<imart type="hidden" action_type=$status.action_type />
+
+<!-- contents area (screen) -->
+<div class="imui-form-container">
+	<div class="imui-chapter-title">
+		<h2><imart type="message" id="SPENT.TIME.ID" /></h2>
+	</div>
+	
+	<!-- form area -->
+	<form name="doInsertForm" action="ib_issues/timespent/insert/<imart type="string" value=$form.id />" method="POST">
+		<imart type="imuiTextbox" id="tweek" name="tweek" value="" style="width: 200px; display:none;" autocomplete="off"></imart>
+		<imart type="imuiTextbox" id="action_button" name="action_button" value="" style="width: 200px;display:none" autocomplete="off"></imart>
+		<table class="imui-form">
+			<tr>
+				<th width="20%"><label><imart type="message" id="ISSUE.ID" /></label></th>
+				<td>
+					<imart type="imuiTextbox" id="issue_id" name="issue_id" value=$form.id style="width: 200px;" /> <imart type="string" value=$form.tracker /> # <imart type="string" value=$form.id />: <imart type="string" value=$form.subject />
+				</td>
+			</tr>
+			<tr>
+				<th width="20%"><label><imart type="message" id="DATE.ID" /></label></th>
+				<td>
+					<imart type="imuiTextbox" id="spent_on" name="spent_on" value="" style="width: 200px;" />
+					<imart type="imuiCalendar" floatable="true" altField="#spent_on" format="MM/dd/yyyy" />
+					<div id="show_date_err"></div>
+				</td>
+			</tr>
+			<tr>
+				<th width="20%"><label><imart type="message" id="SPENT.TIME.ID" /></label></th>
+				<td>
+					<imart type="imuiTextbox" id="hours" name="hours" value="" style="width: 200px;" placeholder="hh:mm" />&nbsp;<imart type="message" id="HOURS.ID" />
+					<div id="show_hours_err"></div>
+				</td>
+			</tr>
+			<tr>
+				<th width="20%"><label><imart type="message" id="ACTIVITY.ID" /></label></th>
+				<td>
+					<imart type="string" value=$activityList />
+				</td>
+			</tr>
+			<tr>
+				<th width="20%"><label><imart type="message" id="COMMENT.ID" /></label></th>
+				<td>
+					<imart type="imuiTextbox" id="comments" name="comments" value="" style="width: 800px;" />
+				</td>
+				
+			</tr>			
+		</table>
+	</form>
+	<table>
+		<tr>
+			<td>
+				<input type="button" value='<imart type="message" id="CREATE.ID" />' id="create-button" class="imui-large-button" />&nbsp;<input type="button" value='<imart type="message" id="CREATE.CONTINUE.ID" />' id="insert-button" class="imui-large-button" />
+			</td>
+		</tr>
+	</table>
+</div>
+<script>
+Date.prototype.getWeek = function() {
+    var onejan = new Date(this.getFullYear(), 0, 1);
+    return Math.ceil((((this - onejan) / 86400000) + onejan.getDay() + 1) / 7);
+}
+$('#tweek').val((new Date()).getWeek());
+</script>

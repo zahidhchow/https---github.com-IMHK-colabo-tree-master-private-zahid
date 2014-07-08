@@ -1,0 +1,133 @@
+<!-- HEAD tag-->
+<imart type="head">
+	<title><imart type="message" id="SETTINGS.ID" /> - <imart type="message" id="ADMINISTRATOR.ID" /></title>
+	<imart type="imuiValidationRule" rule="ib_settings/email_notifications/ib_email_notifications_setting_edit#validateRule" rulesName="rules" messagesName="messages" />
+	<script src="ui/libs/jquery-validation-1.9.0/jquery.validate.js"></script>
+	
+	<script type="text/javascript">
+	(function($) {
+		$(document).ready(function() {
+			$('#edit-button').click(function() {				
+				if (imuiValidate('form[name="doUpdateForm"]', rules, messages)) {
+					$('form[name="doUpdateForm"]').submit();
+				}
+			});
+			
+			if ($('input[name="isSuccess"]').val() === 'true') {
+				imuiShowSuccessMessage('<imart type="message" id="SETTING.UPDATE.SUCCESS.ID" />');
+				window.setTimeout(function(){
+					window.location.href = "ib_settings/emails";
+				}, 2000);
+			}
+			
+			else if ($('input[name="isError"]').val() === 'true') {
+				imuiShowErrorMessage('<imart type="message" id="SETTING.UPDATE.FAIL.ID" />', [$('input[name="message"]').val()]);
+				window.setTimeout(function(){
+					window.location.href = "ib_settings/emails";
+				}, 5000);
+			}
+		});
+	})(jQuery);
+	</script>
+	
+</imart>
+
+<!-- title to be displayed on the screen -->
+<div class="imui-title">
+  <h1><imart type="message" id="EMAIL.SETTING.ID" /></h1>
+</div>
+<imart type="hidden" isSuccess=$status.success />
+<imart type="hidden" isError=$status.error />
+<imart type="hidden" message=$status.message />
+<!-- contents area (screen) -->
+<div class="imui-form-container">
+	<div class="imui-chapter-title">
+		<h2><imart type="message" id="EMAIL.SETTING.UPDATE.ID" /></h2>
+	</div>
+	
+	<!-- form area -->
+	<form name="doUpdateForm" action="ib_settings/emails/update" method="POST">
+		<table class="imui-form">
+			<tr>
+				<th><label><imart type="message" id="EMISSION.EMAIL.ADDRESS.ID" /></label></th>
+				<td>
+					<imart type="imuiTextbox" id="emission_email_address" name="emission_email_address" value=$form.emission_email_address style="width: 200px;" autocomplete="off"></imart>
+				</td>
+			</tr>
+			<tr>
+				<th><label><imart type="message" id="BCC.ID" /></label></th>
+				<td>
+					<imart type="condition" validity=$form.is_bcc_recipients negative>
+						<imart type="input" style="checkbox" name="is_bcc_recipients" id="is_bcc_recipients" value="1"></imart>
+					</imart>
+					<imart type="condition" validity=$form.is_bcc_recipients>
+						<imart type="input" style="checkbox" name="is_bcc_recipients" id="is_bcc_recipients" value="1"  checked="checked"></imart>
+					</imart>
+				</td>
+			</tr>
+			<tr>
+				<th><label><imart type="message" id="EMAIL.TEXT.ID" /></label></th>
+				<td>
+					<imart type="condition" validity=$form.email_text negative>
+						<imart type="imuiRadio" name="email_text" label='' value="1"></imart><imart type="message" id="HTML.ID" />
+					</imart>
+					<imart type="condition" validity=$form.email_text>
+						<imart type="imuiRadio" name="email_text" label='' value="1" checked="checked"></imart><imart type="message" id="HTML.ID" />
+					</imart>
+					&nbsp;
+					<imart type="condition" validity=$form.email_text negative>
+						<imart type="imuiRadio" name="email_text" label='' value="2" checked="checked"></imart><imart type="message" id="PLAIN.TEXT.ID" />
+					</imart>
+					<imart type="condition" validity=$form.email_text>
+						<imart type="imuiRadio" name="email_text" label='' value="2"></imart><imart type="message" id="PLAIN.TEXT.ID" />
+					</imart>
+				</td>
+			</tr>
+			<tr>
+				<th><label><imart type="message" id="SELECT.EMAIL.ACTION.ID" /></label></th>
+				<td>
+					<imart type="condition" validity=$form.issue_added negative>
+						<imart type="input" style="checkbox" name="issue_added" id="issue_added" value="1"></imart>
+					</imart>
+					<imart type="condition" validity=$form.issue_added>
+						<imart type="input" style="checkbox" name="issue_added" id="issue_added" value="1"  checked="checked"></imart>
+					</imart>
+					&nbsp;<imart type="message" id="ISSUE.ADDED.ID" /><br>
+					<imart type="condition" validity=$form.issue_updated negative>
+						<imart type="input" style="checkbox" name="issue_updated" id="issue_updated" value="1"></imart>
+					</imart>
+					<imart type="condition" validity=$form.issue_updated>
+						<imart type="input" style="checkbox" name="issue_updated" id="issue_updated" value="1"  checked="checked"></imart>
+					</imart>
+					&nbsp;<imart type="message" id="ISSUE.UPDATED.ID" /><br>
+					<imart type="condition" validity=$form.time_tracking_updated negative>
+						<imart type="input" style="checkbox" name="time_tracking_updated" id="time_tracking_updated" value="1"></imart>
+					</imart>
+					<imart type="condition" validity=$form.time_tracking_updated>
+						<imart type="input" style="checkbox" name="time_tracking_updated" id="time_tracking_updated" value="1"  checked="checked"></imart>
+					</imart>
+					&nbsp;<imart type="message" id="TIME.TRACKING.UPDATED.ID" />
+				</td>
+			</tr>
+			<tr>
+				<th><label><imart type="message" id="EMAIL.HEADER.ID" /></label></th>
+				<td>
+					<imart type="imuiTextArea" id="email_header" name="email_header" value=$form.email_header style="width: 600px; height: 100px;" />
+				</td>
+			</tr>
+			<tr>
+				<th><label><imart type="message" id="EMAIL.FOOTER.ID" /></label></th>
+				<td>
+					<imart type="imuiTextArea" id="email_footer" name="email_footer" value=$form.email_footer style="width: 600px; height: 100px;" />
+				</td>
+			</tr>
+		</table>
+		<table>
+			<tr>
+				<td>
+					<input type="button" value='<imart type="message" id="SAVE.ID" />' id="edit-button" class="imui-large-button" />
+				</td>
+			</tr>
+		</table>
+	</form>
+</div>

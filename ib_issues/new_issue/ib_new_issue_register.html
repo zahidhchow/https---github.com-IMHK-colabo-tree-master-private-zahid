@@ -1,0 +1,296 @@
+<!-- HEAD tag-->
+<imart type="head">
+	<title><imart type="message" id="ISSUES.ID" /></title>
+	<imart type="imuiValidationRule" rule="ib_issues/new_issue/ib_new_issue_register#validateRule" rulesName="rules" messagesName="messages" />
+	<script src="ui/libs/jquery-validation-1.9.0/jquery.validate.js"></script>
+	
+	<script type="text/javascript">
+	(function($) {
+		$(document).ready(function() {
+			$('#insert-button, #create-button').click(function() {
+				if($(this).attr('id')=='insert-button'){
+					$('#action_button').val('insert');
+				}
+				else{
+					$('#action_button').val('create');
+				}
+				if (imuiValidate('form[name="doInsertForm"]', rules, messages)) {
+					var err_flag = 0;
+					if($('#description').val().length > 2000){
+						var err_flag = 1;
+						$('#show_description_err').show();
+						$('#show_description_err').html('<imart type="message" id="DESCRIPTION.ERR.ID" />');
+						$('#show_description_err').addClass("imui-validation-error");
+					}
+					if(!checkTime($('#estimated_hours').val())){
+						var err_flag = 1;
+						$('#show_estimated_hours_err').show();
+						$('#show_estimated_hours_err').html('<imart type="message" id="ESTIMATED.ERR.ID" />');
+						$('#show_estimated_hours_err').addClass("imui-validation-error");
+					}
+					if(err_flag == 0){
+						$('#show_description_err').hide();
+						$('form[name="doInsertForm"]').submit();
+					}
+				}
+			});
+			
+			if ($('input[name="isSuccess"]').val() === 'true') {
+				imuiShowSuccessMessage('<imart type="message" id="ISSUE.INSERT.SUCCESS.ID" />');
+				window.setTimeout(function(){
+					if($('input[name="action_type"]').val()=='insert'){
+						window.location.href = "ib_issues/register?pid="+$('input[name="hidden_pid"]').val();
+					}
+					else{
+						window.location.href = "ib_issues/details/"+$('input[name="hidden_pid"]').val();
+					}
+				}, 2000);
+			}			
+			else if ($('input[name="isError"]').val() === 'true') {
+				imuiShowErrorMessage('<imart type="message" id="ISSUE.INSERT.FAIL.ID" />', [$('input[name="message"]').val()]);
+				window.setTimeout(function(){
+					window.location.href = "ib_settings/emails";
+				}, 5000);
+			}
+		});
+		
+		$("#start_date").imuiCalendar("method_name");
+		$("#due_date").imuiCalendar("method_name");
+		
+	})(jQuery);
+	$(function() {
+		$("#parent_id").autocomplete({
+			source: "ib_issues/register/autocom?pid="+$("#project_id").val(),
+			minLength: 1,
+			select: function(event, ui) {
+				//extra code will go here like (ui.item.value)
+			},
+			html: true,
+			// optional
+			open: function(event, ui) {
+				$(".ui-autocomplete").css("z-index", 1000);
+			}
+		});
+	});
+	function callbackSuccess(e, data) {
+		//Information that you send
+		var file = data.files[0];
+		var fileName = file.name;
+		var fileSize = file.size;
+		var fileType = file.type;
+		
+		//Information that you send
+		var receiveFile = data.result[0];
+		var receiveFileName = receiveFile.name;
+		var receiveFileSize = receiveFile.size;
+		
+		$('#fileName').val(receiveFileName);
+		//var fileType = receiveFile.type; //It does not include information that is received.
+		//doSomething
+	}
+
+	function callbackError(e, data) {
+		var file = data.files[0];
+		var fileName = file.name;
+		var fileSize = file.size;
+		var fileType = file.type;
+		//doSomething
+	}
+	
+	function callbackRemove(e, data){
+		var file = data.files[0];
+		var fileName = file.name;
+		var fileSize = file.size;
+		var fileType = file.type;
+		//doSomething
+	}
+	function checkTime(time) {
+		var errorMsg = "";
+		
+		// regular expression to match required time format
+		re = /^(\d{1,2}):(\d{2})?$/;
+		
+		if(time != '') {
+			if(regs = time.match(re)) {				
+				if(regs[1] > 99) {
+					return false;
+				}
+				if(regs[2] > 59) {
+					return false;
+				}
+			}
+			else {
+				return false;
+			}
+		}
+		return true;
+	}
+	</script>
+	
+</imart>
+
+<!-- title to be displayed on the screen -->
+<div class="imui-title">
+  <h1><imart type="message" id="ISSUES.ID" /></h1>
+</div>
+<imart type="hidden" isSuccess=$status.success />
+<imart type="hidden" isError=$status.error />
+<imart type="hidden" message=$status.message />
+<imart type="hidden" hidden_pid=$status.project_id />
+<imart type="hidden" action_type=$status.action_type />
+<!-- contents area (screen) -->
+<div class="imui-form-container">
+	<div class="imui-chapter-title">
+		<h2><imart type="message" id="NEW.ISSUES.ID" /></h2>
+	</div>
+	
+	<!-- form area -->
+	<form name="doInsertForm" action="ib_issues/register/insert" method="POST">
+		<imart type="imuiTextbox" id="project_id" name="project_id" value=$project_id style="width: 200px;display:none" autocomplete="off"></imart>
+		<imart type="imuiTextbox" id="action_button" name="action_button" value="" style="width: 200px;display:none" autocomplete="off"></imart>
+		<table class="imui-form">
+			<tr>
+				<th><label><imart type="message" id="TRACKER.ID" /></label></th>
+				<td>
+					<imart type="string" value=$trackerList /><span style="float:right;"><imart type="input" style="checkbox" name="is_private_issue" id="is_private_issue" value="1"></imart>&nbsp;<imart type="message" id="PRIVATE.ID" /></span>
+				</td>
+			</tr>
+			<tr>
+				<th><label><imart type="message" id="SUBJECT.ID" /></label></th>
+				<td>
+					<imart type="imuiTextbox" id="subject" name="subject" value="" style="width: 200px;" autocomplete="off"></imart>
+				</td>
+			</tr>
+			<tr>
+				<th><label><imart type="message" id="DESCRIPTION.ID" /></label></th>
+				<td>
+					<imart type="imuiRichtextbox" id="description" name="description" value="" style="width: 800px; height: 250px;" />
+					<div id="show_description_err"></div>
+				</td>
+			</tr>
+			<tr>
+				<td colspan="2">
+					<table width="100%">
+						<tr>
+							<td width="50%">
+								<table width="100%">
+									<tr>
+										<th width="20%"><label><imart type="message" id="STATUS.ID" /></label></th>
+										<td>
+											<imart type="string" value=$statusList />
+										</td>
+									</tr>
+								</table>
+							</td>
+							<td width="50%">
+								<table width="100%">
+									<tr>				
+										<th width="20%"><label><imart type="message" id="PARENT.TASK.ID" /></label></th>
+										<td>
+											<imart type="imuiTextbox" id="parent_id" name="parent_id" value="" style="width: 200px;" autocomplete="off" class="autocomplete_ib"></imart>
+										</td>
+									</tr>
+								</table>
+							</td>
+						</tr>
+					</table>
+				</td>
+			</tr>
+			<tr>
+				<td colspan="2">
+					<table width="100%">
+						<tr>
+							<td width="50%">
+								<table width="100%">
+									<tr>
+										<th width="20%"><label><imart type="message" id="PRIORITY.ID" /></label></th>
+										<td>
+											<imart type="string" value=$priorityList />
+										</td>
+									</tr>
+								</table>
+							</td>
+							<td width="50%">
+								<table width="100%">
+									<tr>				
+										<th width="20%"><label><imart type="message" id="ASSIGN.TO.ID" /></label></th>
+										<td>
+											<imart type="string" value=$assignToList />
+										</td>
+									</tr>
+								</table>
+							</td>
+						</tr>
+					</table>
+				</td>
+			</tr>
+			<tr>
+				<td colspan="2">
+					<table width="100%">
+						<tr>
+							<td width="50%">
+								<table width="100%">
+									<tr>
+										<th width="20%"><label><imart type="message" id="START.DATE.ID" /></label></th>
+										<td>
+											<imart type="imuiTextbox" id="start_date" name="start_date" value="" style="width: 200px;" autocomplete="off"></imart>
+											<imart type="imuiCalendar" floatable="true" altField="#start_date" format="MM/dd/yyyy" />
+										</td>
+									</tr>
+								</table>
+							</td>
+							<td width="50%">
+								<table width="100%">
+									<tr>				
+										<th width="20%"><label><imart type="message" id="DUE.DATE.ID" /></label></th>
+										<td>
+											<imart type="imuiTextbox" id="due_date" name="due_date" value="" style="width: 200px;" autocomplete="off"></imart>
+											<imart type="imuiCalendar" floatable="true" altField="#due_date" format="MM/dd/yyyy" />
+										</td>
+									</tr>
+								</table>
+							</td>
+						</tr>
+					</table>
+				</td>
+			</tr>
+			<tr>
+				<td colspan="2">
+					<table width="100%">
+						<tr>
+							<td width="50%">
+								<table width="100%">
+									<tr>
+										<th width="20%"><label><imart type="message" id="ESTIMATED.TIME.ID" /></label></th>
+										<td>
+											<imart type="imuiTextbox" id="estimated_hours" name="estimated_hours" value="" style="width: 200px;"  placeholder="hh:mm" />&nbsp;<imart type="message" id="HOURS.ID" />
+											<div id="show_estimated_hours_err"></div>
+										</td>
+									</tr>
+								</table>
+							</td>
+							<td width="50%">
+								<table width="100%">
+									<tr>
+										<th width="20%"><label><imart type="message" id="PROGRESS.ID" /></label></th>
+										<td>
+											<imart type="imuiSelect" list=progressList name="progress" id ="progress"></imart>
+										</td>
+									</tr>
+								</table>
+							</td>
+						</tr>
+					</table>
+				</td>				
+			</tr>
+		</table>
+	</form>
+	<imart type="imuiFileUpload" url="ib_issues/register/upload" enableDelete maxNumberOfFiles="5" autoUpload  onSuccess="callbackSuccess" onError="callbackError" onRemove="callbackRemove" />
+	<table>
+		<tr>
+			<td>
+				<input type="button" value='<imart type="message" id="CREATE.ID" />' id="create-button" class="imui-large-button" />&nbsp;<input type="button" value='<imart type="message" id="CREATE.CONTINUE.ID" />' id="insert-button" class="imui-large-button" />
+			</td>
+		</tr>
+	</table>
+</div>

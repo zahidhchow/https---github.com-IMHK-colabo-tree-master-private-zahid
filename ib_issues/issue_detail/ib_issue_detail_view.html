@@ -1,0 +1,140 @@
+<!-- HEAD tag-->
+<imart type="head">
+	<title><imart type="message" id="ISSUES.ID" /></title>
+	<imart type="imuiValidationRule" rule="ib_issues/issue_detail/ib_issue_detail_view#validateRule" rulesName="rules" messagesName="messages" />
+	<script src="ui/libs/jquery-validation-1.9.0/jquery.validate.js"></script>
+	
+</imart>
+
+<!-- title to be displayed on the screen -->
+<div class="imui-title">
+  <h1><imart type="message" id="ISSUES.ID" /></h1>
+</div>
+<imart type="hidden" isSuccess=$status.success />
+<imart type="hidden" isError=$status.error />
+<imart type="hidden" message=$status.message />
+<!-- contents area (screen) -->
+<div class="imui-form-container">
+	<div class="imui-chapter-title">
+		<h2><imart type="message" id="ISSUES.DEATILD.ID" /></h2>
+	</div>
+	
+	<div class="mt-20">
+		<div class="tracker_title"><b><imart type="string" value=$displayDetail.tracker /> # <imart type="string" value=$displayDetail.id /></b>
+		<span style="float:right;">
+		<a href="ib_issues/edit/<imart type="string" value=$displayDetail.id />"><span class="im-ui-icon-common-16-update"></span>Edit</a>&nbsp;
+		<a href="ib_issues/timespent/register/<imart type="string" value=$displayDetail.id />"><span class="im-ui-icon-common-16-update"></span>Log time</a>&nbsp;
+		<a href="ib_issues/details/delete/<imart type="string" value=$displayDetail.id />" onclick="return confirm('<imart type="message" id="DELETE.CONFIRM.ID" />')"><span class="im-ui-icon-common-16-update"></span>Delete</a></span></div>
+		<table class="imui-form">
+			<tr>
+				<td colspan="4">
+					<b><imart type="string" value=$displayDetail.subject /></b>
+				</td>
+			</tr>
+			<tr>
+				<td colspan="4">
+					<imart type="message" id="ADDED.BY.ID" /> <imart type="string" value=$displayDetail.user_name /> <imart type="string" value=$displayDetail.added_time_difference /> <imart type="message" id="AGO.ID" />. <imart type="message" id="UPDATED.ID" /> <imart type="string" value=$displayDetail.added_time_difference /> <imart type="message" id="AGO.ID" />
+				</td>
+			</tr>
+			<tr>
+				<td width="20%">
+					<b><imart type="message" id="STATUS.ID" /></b>
+				</td>
+				<td width="30%">
+					<imart type="string" value=$displayDetail.status />
+				</td>
+				<td width="20%">
+					<b><imart type="message" id="START.DATE.ID" /></b>
+				</td>
+				<td width="30%">
+					<imart type="dateTime" value=$displayDetail.start_date pattern="MM/dd/yyyy"></imart>
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<b><imart type="message" id="PRIORITY.ID" /></b>
+				</td>
+				<td>
+					<imart type="string" value=$displayDetail.priority />
+				</td>
+				<td>
+					<b><imart type="message" id="DUE.DATE.ID" /></b>
+				</td>
+				<td>
+					<imart type="dateTime" value=$displayDetail.due_date pattern="MM/dd/yyyy"></imart>
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<b><imart type="message" id="ASSIGN.TO.ID" /></b>
+				</td>
+				<td>
+					<imart type="string" value=$displayDetail.assigned_to_id />
+				</td>
+				<td>
+					<b><imart type="message" id="PROGRESS.ID" /></b>
+				</td>
+				<td>
+					<imart type="string" value=$displayDetail.progress />%
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<b><imart type="message" id="ESTIMATED.TIME.ID" /></b>
+				</td>
+				<td>
+					<imart type="string" value=$displayDetail.estimated_hours /> <imart type="message" id="HOURS.ID" />
+				</td>
+				<td>
+					<b><imart type="message" id="SPENT.TIME.ID" /></b>
+				</td>
+				<td>
+					<a href="ib_issues/timespent/<imart type="string" value=$displayDetail.id />"><imart type="string" value=$displayDetail.total_spent_time /> <imart type="message" id="HOURS.ID" /></a>
+				</td>
+			</tr>
+			<tr>
+				<td colspan="4">
+					<b><imart type="message" id="DESCRIPTION.ID" /></b>
+				</td>
+			</tr>
+			<tr>
+				<td colspan="4">
+					<imart type="string" value=$displayDetail.description />
+				</td>
+			</tr>
+			<tr>
+				<td colspan="4">
+					<imart type="string" value=$displayDetailFiles />
+				</td>
+			</tr>
+		</table>
+	</div>
+	<div class="mt-20">
+		<table class="imui-form">
+			<tr>
+				<td colspan="4">
+					<b><imart type="message" id="HISTORY.ID" /></b>
+				</td>
+			</tr>
+			<tr>
+				<td colspan="4">
+					<imart type="string" value=$displayChangesHistory />
+				</td>
+			</tr>
+		</table>
+	</div>
+</div>
+<script type="text/javascript">	
+	if ($('input[name="isSuccess"]').val() === 'true') {
+		imuiShowSuccessMessage('<imart type="message" id="ISSUE.DELETE.SUCCESS.ID" />');
+		window.setTimeout(function(){
+			window.location.href = "ib_issues/issues";
+		}, 2000);
+	}			
+	else if ($('input[name="isError"]').val() === 'true') {
+		imuiShowErrorMessage('<imart type="message" id="ISSUE.DELETE.FAIL.ID" />', [$('input[name="message"]').val()]);
+		window.setTimeout(function(){
+			window.location.href = "ib_settings/emails";
+		}, 5000);
+	}
+	</script>	

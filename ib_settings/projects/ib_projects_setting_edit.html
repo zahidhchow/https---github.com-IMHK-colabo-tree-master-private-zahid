@@ -1,0 +1,102 @@
+<!-- HEAD tag-->
+<imart type="head">
+	<title><imart type="message" id="SETTINGS.ID" /> - <imart type="message" id="ADMINISTRATOR.ID" /></title>
+	<imart type="imuiValidationRule" rule="ib_settings/projects/ib_projects_setting_edit#validateRule" rulesName="rules" messagesName="messages" />
+	<script src="ui/libs/jquery-validation-1.9.0/jquery.validate.js"></script>
+	
+	<script type="text/javascript">
+	(function($) {
+		$(document).ready(function() {
+			$('#edit-button').click(function() {				
+				if (imuiValidate('form[name="doUpdateForm"]', rules, messages)) {
+					var err_flag = 0;
+					if($("input[name='tracker_list[]']:checked").length==0) {
+						err_flag = 1;
+						$('#show_tracker_list_err').show();
+						$('#show_tracker_list_err').html('<imart type="message" id="MUST.SELECT.TRACKER.ID" />');
+						$('#show_tracker_list_err').addClass("imui-validation-error");
+					}
+					if($("input[name='module_list[]']:checked").length==0) {
+						err_flag = 1;
+						$('#show_module_list_err').show();
+						$('#show_module_list_err').html('<imart type="message" id="MUST.SELECT.MODULE.ID" />');
+						$('#show_module_list_err').addClass("imui-validation-error");
+					}
+					if(err_flag == 0){
+						$('#show_tracker_list_err').hide();
+						$('#show_module_list_err').hide();
+						$('form[name="doUpdateForm"]').submit();
+					}
+				}
+			});
+			
+			if ($('input[name="isSuccess"]').val() === 'true') {
+				imuiShowSuccessMessage('<imart type="message" id="SETTING.UPDATE.SUCCESS.ID" />');
+				window.setTimeout(function(){
+					window.location.href = "ib_settings/projects";
+				}, 2000);
+			}
+			
+			else if ($('input[name="isError"]').val() === 'true') {
+				imuiShowErrorMessage('<imart type="message" id="SETTING.UPDATE.FAIL.ID" />', [$('input[name="message"]').val()]);
+				window.setTimeout(function(){
+					window.location.href = "ib_settings/projects";
+				}, 5000);
+			}
+		});
+	})(jQuery);
+	</script>
+	
+</imart>
+
+<!-- title to be displayed on the screen -->
+<div class="imui-title">
+  <h1><imart type="message" id="PROJECTS.SETTING.ID" /></h1>
+</div>
+<imart type="hidden" isSuccess=$status.success />
+<imart type="hidden" isError=$status.error />
+<imart type="hidden" message=$status.message />
+<!-- contents area (screen) -->
+<div class="imui-form-container">
+	<div class="imui-chapter-title">
+		<h2><imart type="message" id="PROJECTS.SETTING.UPDATE.ID" /></h2>
+	</div>
+	
+	<!-- form area -->
+	<form name="doUpdateForm" action="ib_settings/projects/update" method="POST">
+		<table class="imui-form">
+			<tr>
+				<th><label><imart type="message" id="PUBLIC.BY.DEFAULT.ID" /></label></th>
+				<td>
+					<imart type="condition" validity=$defaultProjectsPublic negative>
+						<imart type="input" style="checkbox" name="default_projects_public" id="default_projects_public" value="1"></imart>
+					</imart>
+					<imart type="condition" validity=$defaultProjectsPublic>
+						<imart type="input" style="checkbox" name="default_projects_public" id="default_projects_public" value="1" checked ></imart>
+					</imart>
+				</td>
+			</tr>
+			<tr>
+				<th><label><imart type="message" id="DEFAULT.ENABLE.MODULE.ID" /></label></th>
+				<td>
+					<imart type="string" value=$moduleList />
+					<div id="show_module_list_err"></div>
+				</td>
+			</tr>
+			<tr>
+				<th><label><imart type="message" id="DEFAULT.TRACKERS.ID" /></label></th>
+				<td>
+					<imart type="string" value=$trackerList />
+					<div id="show_tracker_list_err"></div>
+				</td>
+			</tr>
+		</table>
+		<table>
+			<tr>
+				<td>
+					<input type="button" value='<imart type="message" id="SAVE.ID" />' id="edit-button" class="imui-large-button" />
+				</td>
+			</tr>
+		</table>
+	</form>
+</div>
